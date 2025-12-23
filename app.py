@@ -49,18 +49,20 @@ def login():
         password = request.form.get('password', '')
 
         # ------------------------------------------------------------------
-        # VULNERABILITY LAB: SQL Injection
-        # We are intentionally using an f-string to insert user input.
-        # This allows the 'OR 1=1' hack to work.
+        # SECURE: Parameterized Query - Prevents SQL Injection
+        # Using ? placeholders and passing values as a tuple ensures
+        # user input is treated as data, not executable SQL code.
         # ------------------------------------------------------------------
-        query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"
+        query = "SELECT * FROM users WHERE username = ? AND password = ?"
         
-        # Print the exact query to the terminal so you can see the hack
-        print(f"\n[⚠️ DEBUG] SQL Query Executed: {query}\n") 
+        # Print the query template and parameters for debugging
+        print(f"\n[✅ SECURE] SQL Query Template: {query}")
+        print(f"[✅ SECURE] Parameters: username='{username}', password='{password}'\n")
 
         cursor = get_db().cursor()
         try:
-            cursor.execute(query)
+            # Pass username and password as a tuple - database driver safely handles them
+            cursor.execute(query, (username, password))
             user = cursor.fetchone()
             if user:
                 message = f'✅ Login successful! Welcome, {user[1]}. Access Granted.'
