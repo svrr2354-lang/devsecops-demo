@@ -14,22 +14,31 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    # 2. Build the Docker image (just like you did on your laptop)
+    # --- NEW STEP STARTS HERE ---
+    # 2. Run Industry-Standard Security Scan (Bandit)
+    # This checks for static code issues like debug=True
+    - name: Run Bandit Security Scan
+      run: |
+        pip install bandit
+        bandit -r app.py
+    # --- NEW STEP ENDS HERE ---
+
+    # 3. Build the Docker image (just like you did on your laptop)
     - name: Build Docker Image
       run: docker build -t vulnerable-bank .
 
-    # 3. Run the container in the background
+    # 4. Run the container in the background
     - name: Run Docker Container
       run: docker run -d -p 5000:5000 vulnerable-bank
 
-    # 4. Wait a few seconds for the app to start
+    # 5. Wait a few seconds for the app to start
     - name: Wait for App to Start
       run: sleep 5
 
-    # 5. Install Python tools for the attacker script
+    # 6. Install Python tools for the attacker script
     - name: Install Test Dependencies
       run: pip install requests
 
-    # 6. Run the Attack!
+    # 7. Run the Attack!
     - name: Run Automated Security Test
       run: python exploit.py
